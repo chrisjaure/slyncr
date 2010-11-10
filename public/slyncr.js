@@ -1,7 +1,7 @@
 (function(){
 
 var config = {
-	server: 'localhost',
+	server: 'cleverchris.com',
 	port: 8000
 };
 
