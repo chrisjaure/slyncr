@@ -66,7 +66,7 @@ var Controller = (function(){
 
 })();
 
-getScript('http://' config.server + (config.port ? ':' + config.port : '') + '/Socket.IO/socket.io.js', function(){
+getScript('http://' + config.server + (config.port ? ':' + config.port : '') + '/Socket.IO/socket.io.js', function(){
 	var socket = new io.Socket(config.server, {port: config.port});
 	socket.connect();
 	socket.on('message', function(data){
