@@ -7,7 +7,7 @@ if (!window.console)
 console.log('slyncr: script loaded');
 
 var config = {
-	server: 'localhost',
+	server: 'cleverchris.com',
 	port: 8000
 };
 
