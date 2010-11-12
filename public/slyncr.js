@@ -1,7 +1,13 @@
 (function(){
 
+var console = window.console;
+if (!window.console)
+	console = { log: function(){} };
+
+console.log('slyncr: script loaded');
+
 var config = {
-	server: 'cleverchris.com',
+	server: 'localhost',
 	port: 8000
 };
 
@@ -14,7 +20,7 @@ function getScript(url,success){
 	script.onload = script.onreadystatechange = function(){
 		if(!done && (!this.readyState || this.readyState=='loaded' || this.readyState=='complete'))
 		{
-			done=true;
+			done = true;
 			success();
 			script.onload = script.onreadystatechange = null;
 			head.removeChild(script);
@@ -23,24 +29,45 @@ function getScript(url,success){
 	head.appendChild(script);
 }
 
-if (typeof console !== 'undefined')
-	console.log('slyncr loaded');
+var Message = {
+    el: null,
+    create: function(){
+        this.el = document.createElement('div');
+        this.el.style.position = 'fixed';
+        this.el.style.top = 0;
+        this.el.style.right = 0;
+        this.el.style.backgroundColor = '#022A61';
+        this.el.style.color = '#ffffff';
+        this.el.style.fontWeight = 'bold';
+        this.el.style.padding = '5px';
+        document.body.appendChild(this.el);
+    },
+    set: function(msg){
+        this.el.innerHTML = msg;
+        console.log('slyncr: ' + msg);
+    }
+};
+
+Message.create();
 
 var Controller = (function(){
-
-	if (typeof Scribd !== 'undefined')
+	// branch functionality for scribd
+	if (window.Scribd)
 	{
+	    if (!window.docManager)
+	    {
+            Message.set('Flash version of Scribd not supported!');
+            return;
+	    }
+	    
 		var obj = {
 			next: function(){ docManager.gotoNextPage() },
-			previous: function(){ docManager.gotoPreviousPage() },
-			id: function(){
-				var url = window.location.pathname.split('/');
-				return 'scribd+'+url[2]+'+'+url[3];
-			}
+			previous: function(){ docManager.gotoPreviousPage() }
 		};
 		return obj;
-	}	
-	else if (typeof CPApp !== 'undefined')
+	}
+	// 280 slides
+	else if (window.CPApp)
 	{
 		var obj = {
 			next: function(){
@@ -48,47 +75,50 @@ var Controller = (function(){
 			},
 			previous: function(){
 				objj_msgSend(CPApp._mainWindow._contentView._subviews[0]._presentationView, "previousSlide");
-			},
-			id: function(){
-				var url = window.location.search.substr(1).split('?'),
-					str = "280slides";
-				for (var i = 0, params; i < url.length; i++)
-				{
-					params = url[i].split('=');
-					if (params[0] == 'user' || params[0] == 'name')
-						str += '+' + params[1];
-				}
-				return str;
 			}
 		};
 		return obj;
 	}
+	else
+	{
+	    Message.set('Site not supported!');
+	}
 
 })();
+
+if (!Controller)
+{
+    return;
+}
 
 getScript('https://github.com/LearnBoost/Socket.IO/raw/master/socket.io.js', function(){
 	var socket = new io.Socket(config.server, {port: config.port});
 	socket.connect();
 	socket.on('message', function(data){
+		console.log('slyncr received ' + data);
 		switch(data)
 		{
 			case 'next':
-				Controller.next();				
+				Controller.next();
 				break;
 			case 'previous':
 				Controller.previous();
 				break;
+			default:
+			    // default is a count of connected clients
+			    Message.set(parseInt(data, 10) + ' connected.');
 		}
 	});
 	socket.on('connect', function(){
-		//console.log('socket connected');
+		Message.set('Connected!');
 		setTimeout(function(){
-			socket.send(Controller.id());
+			socket.send(window.location.href);
 		}, 200);	
 	});
-	socket.on('close', function(){
-		//console.log('close');
+	socket.on('disconnect', function(){
+	   Message.set('Not connected!');
 	});
 });
 
 })();
+
