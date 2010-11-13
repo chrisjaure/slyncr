@@ -91,11 +91,11 @@ if (!Controller)
     return;
 }
 
-getScript('https://github.com/LearnBoost/Socket.IO/raw/master/socket.io.js', function(){
+getScript('http://' + config.server + (config.port ? ':' + config.port : '') + '/socket.io/socket.io.js', function(){
 	var socket = new io.Socket(config.server, {port: config.port});
 	socket.connect();
 	socket.on('message', function(data){
-		console.log('slyncr received ' + data);
+		console.log('slyncr: received ' + data);
 		switch(data)
 		{
 			case 'next':
