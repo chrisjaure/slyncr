@@ -1,15 +1,13 @@
 var express = require('express'),
 	sio = require('socket.io'),
 	url = require('url'),
-	//querystring = require('querystring'),
 	crypto = require('crypto'),
 	app = express.createServer(),
 	socket,
 	sessions = {};
 	
-app.configure(function(){
-	app.use(express.staticProvider(__dirname + '/public'));
-});
+
+app.use(express.staticProvider(__dirname + '/public'));
 
 app.listen(8000);
 
@@ -19,8 +17,6 @@ socket.on('connection', function(client){
 	var params, session;
 	client.on('message', function(slide_url){
 	    session = getIdFromUrl(slide_url);
-	    
-	    console.log(slide_url, session);
 	    
 	    if (!session)
 	       return;
@@ -78,22 +74,7 @@ app.get('/prev/:session', function(req,res){
 
 function getIdFromUrl(path)
 {
-    var parsed_url = url.parse(path, true),
-        id = false;
-    
-    switch (parsed_url.hostname.toLowerCase().replace('www.', ''))
-    {
-        case '280slides.com':
-            id = '280slides+' + parsed_url.query.user + '+' +
-                parsed_url.query.name;
-            break;
-        case 'scribd.com':
-            var pathname = parsed_url.pathname.split('/');
-            id = 'scribd+' + pathname[2];
-            break;
-    }
-    
-    return id;
+    return crypto.createHash('md5').update(path.split('#')[0]).digest('hex');
 }
 
 function broadcastCount(clients)

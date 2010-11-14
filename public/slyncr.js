@@ -7,7 +7,7 @@ if (!window.console)
 console.log('slyncr: script loaded');
 
 var config = {
-	server: 'cleverchris.com',
+	server: 'localhost',
 	port: 8000
 };
 
@@ -27,6 +27,23 @@ function getScript(url,success){
 		}
 	};
 	head.appendChild(script);
+}
+
+function triggerKeydown(keyCode)
+{
+	var event = document.createEvent("Events");
+	event.initEvent('keydown', true, true);
+
+    //initialize
+    event.view = window;
+    event.altKey = false;
+    event.ctrlKey = false;
+    event.shiftKey = false;
+    event.metaKey = false;
+    event.keyCode = keyCode;
+    event.charCode = 0;
+	
+	document.dispatchEvent(event);
 }
 
 var Message = {
@@ -81,7 +98,16 @@ var Controller = (function(){
 	}
 	else
 	{
-	    Message.set('Site not supported!');
+	    Message.set('Triggering left and right keys');
+	    var obj = {
+	    	next: function(){
+	    		triggerKeydown(39);
+	    	},
+	    	previous: function(){
+	    		triggerKeydown(37);
+	    	}
+	    }
+	    return obj;
 	}
 
 })();
