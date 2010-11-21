@@ -8,7 +8,7 @@ var express = require('express'),
 
 	
 // -- App config ---------------------------------------------------------------
-app.use('/slyncr/', express.staticProvider(__dirname + '/public'));
+app.use('/', express.staticProvider(__dirname + '/public'));
 app.use(express.bodyDecoder());
 app.register('.html', require('ejs'));
 app.set('view options', {
@@ -16,7 +16,7 @@ app.set('view options', {
     open: '<?',
     close: '?>'
 });
-app.set('home', 'http://cleverchris.com');
+app.set('home', 'http://cleverchris.com/slyncr');
 app.listen(8000);
 
 
@@ -63,17 +63,17 @@ socket.on('connection', function(client){
 
 // -- Routes -------------------------------------------------------------------
 
-app.get('/slyncr/', function(req,res){
+app.get('/', function(req,res){
 	res.render('page.html');
 });
-app.post('/slyncr/', function(req,res){
-	res.redirect('/slyncr/controller?'+getIdFromUrl(req.param('slide_url')));
+app.post('/', function(req,res){
+	res.redirect('controller?'+getIdFromUrl(req.param('slide_url')));
 });
-app.get('/slyncr/controller', function(req,res){
+app.get('/controller', function(req,res){
 	res.render('controller.html');
 });
 
-app.get('/slyncr/next/:session', function(req,res){
+app.get('/next/:session', function(req,res){
 	var session = sessions[req.params.session];
 	if (session)
 	{
@@ -86,7 +86,7 @@ app.get('/slyncr/next/:session', function(req,res){
 	res.send('200 OK');
 });
 
-app.get('/slyncr/prev/:session', function(req,res){
+app.get('/prev/:session', function(req,res){
 	var session = sessions[req.params.session];
 	if (session)
 	{
