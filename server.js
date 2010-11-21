@@ -16,7 +16,7 @@ app.set('view options', {
     open: '<?',
     close: '?>'
 });
-
+app.set('home', 'http://cleverchris.com');
 app.listen(8000);
 
 
