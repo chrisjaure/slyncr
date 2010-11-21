@@ -3,10 +3,10 @@ slyncr
 
 Slyncr is a bookmarklet that will listen for commands from a remote website, primarily intended for controlling slides from a mobile phone.
 
-Right now, the supported sites are 280slides.com and Scribd.com's html mode.
+Right now, the supported sites are 280slides.com, Scribd.com's html mode, and any site that uses the arrow keys to control the slides like Google Docs.
 
-When my server's up, the controller url is http://cleverchris.com:8000/controller.html?[id]
 
-For now, the 280slides id is "280slides+[user]+[name]" and the scribd id is "scribd+[id]". For example, the controller url for http://www.scribd.com/doc/41224012/No-SQL would be http://cleverchris.com:8000/controller.html?scribd+41224012
+installing the server
+---------------------
 
-I will at some point implement some sort of url generator/shortener.
+This will eventually be an npm package, but as of now, make sure you've got the socket.io, express, and ejs npm packages. SSL support is also needed.

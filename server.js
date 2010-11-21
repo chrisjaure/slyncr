@@ -5,11 +5,22 @@ var express = require('express'),
 	app = express.createServer(),
 	socket,
 	sessions = {};
-	
 
-app.use(express.staticProvider(__dirname + '/public'));
+	
+// -- App config ---------------------------------------------------------------
+app.use('/slyncr/', express.staticProvider(__dirname + '/public'));
+app.use(express.bodyDecoder());
+app.register('.html', require('ejs'));
+app.set('view options', {
+    layout: false,
+    open: '<?',
+    close: '?>'
+});
 
 app.listen(8000);
+
+
+// -- Socket setup -------------------------------------------------------------
 
 socket = sio.listen(app);
 
@@ -41,12 +52,28 @@ socket.on('connection', function(client){
 					console.log('removing ' + session);
 				}
 			});
-			broadcastCount(sessions[session].clients);
+			if (sessions[session].clients.length == 0)
+				delete sessions[session];
+			else
+				broadcastCount(sessions[session].clients);
 		}
 	});
 });
 
-app.get('/next/:session', function(req,res){
+
+// -- Routes -------------------------------------------------------------------
+
+app.get('/slyncr/', function(req,res){
+	res.render('page.html');
+});
+app.post('/slyncr/', function(req,res){
+	res.redirect('/slyncr/controller?'+getIdFromUrl(req.param('slide_url')));
+});
+app.get('/slyncr/controller', function(req,res){
+	res.render('controller.html');
+});
+
+app.get('/slyncr/next/:session', function(req,res){
 	var session = sessions[req.params.session];
 	if (session)
 	{
@@ -59,7 +86,7 @@ app.get('/next/:session', function(req,res){
 	res.send('200 OK');
 });
 
-app.get('/prev/:session', function(req,res){
+app.get('/slyncr/prev/:session', function(req,res){
 	var session = sessions[req.params.session];
 	if (session)
 	{
@@ -71,6 +98,8 @@ app.get('/prev/:session', function(req,res){
 	console.log('prev ' + req.params.session);
 	res.send('200 OK');
 });
+
+// -- Utilites -----------------------------------------------------------------
 
 function getIdFromUrl(path)
 {
