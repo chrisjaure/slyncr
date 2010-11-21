@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>slyncr</title>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" href="style.css" />
+</head>
+
+<body>	
+	<div id="container">
+		<h1>slyncr</h1>
+		
+		<div id="content">
+			<div class="section section-first">
+				<p>synchronize your slides with slyncr!</p>
+				<div id="screencast">
+					<object width="425" height="344"><param name="movie" value="http://www.twitvid.com/player/7MNTP"></param><param name="allowscriptaccess" value="always"></param><param name="allowFullScreen" value="true"></param><embed type="application/x-shockwave-flash" src="http://www.twitvid.com/player/7MNTP" quality="high" allowscriptaccess="always" allowNetworking="all" allowfullscreen="true" wmode="transparent" height="344" width="425"></embed></object>
+				</div>
+			</div>
+			<div class="section">
+				<div class="step">1</div>
+				<h2>
+					get the bookmarklet
+					<span id="bookmarklet">
+					&rarr;
+					<a title="drag this to your bookmark bar" href="javascript:%20(function(){function%20getScript(url,success){var%20script=document.createElement('script');script.src=url;var%20head=document.getElementsByTagName('head')[0],done=false;script.onload=script.onreadystatechange=function(){if(!done&&(!this.readyState||this.readyState=='loaded'||this.readyState=='complete')){done=true;success();script.onload=script.onreadystatechange=null;head.removeChild(script);}};head.appendChild(script);}%20getScript('https://github.com/chrisjaure/slyncr/raw/master/public/slyncr.js',function(){});})();">slyncr</a>
+					</span>
+				</h2>
+				<p>and activate it on the slideshow page</p>
+			</div>
+			
+			<div class="section">
+				<div class="step">2</div>
+				<h2>get the remote</h2>
+				<p>enter the url of the slideshow to get the remote control</p>
+				<form method="POST" action="/slyncr/">
+					<label>
+						<input class="text" type="text" name="slide_url" />
+					</label>
+					<button type="submit">get remote</button>
+				</form>
+			</div>
+			<div class="section">
+				<h2>support</h2>
+				<p>slyncr works with these sites:</p>
+				<ul>
+					<li><a href="http://scridb.com/">scribd (html version)</a></li>
+					<li><a href="http://280slides.com/">280slides (buggy)</a></li>
+					<li>any site that uses arrow keys for controls, like Google Docs</li>
+					<li>more support coming soon...</li>
+				</ul>
+				<p>and has been tested with theses browsers:</p>
+				<ul>
+					<li>Chrome 7</li>
+					<li>Firefox 3.6</li>
+					<li>probably works in more browsers, but this will be verified</li>
+				</ul>
+			</div>
+		</div>
+		
+		<div id="footer">
+			<p>built with <a href="http://nodejs.org/">node.js</a>, <a href="http://socket.io/">socket.io</a>, and <a href="http://expressjs.com/">express</a> by @<a href="http://twitter.com/chrisjaure">chrisjaure</a></p>
+		</div>
+	</div>
+	<a href="https://github.com/chrisjaure/slyncr"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://assets0.github.com/img/c641758e06304bc53ae7f633269018169e7e5851?repo=&url=http%3A%2F%2Fs3.amazonaws.com%2Fgithub%2Fribbons%2Fforkme_left_white_ffffff.png&path=" alt="Fork me on GitHub"></a>
+</body>
+
+</html>
