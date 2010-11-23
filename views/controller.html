@@ -4,6 +4,7 @@
 	<meta charset="utf-8" />
 	<title>slyncr controller</title>
 	<meta name="viewport" content="width=device-width" />
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
 	<script>
 		var Zepto=function(){function g(a){return a.filter(function(b){return b!==l&&b!==null})}function e(a,b){this.dom=a||[];this.selector=b||""}function c(a,b){return a==document?new e:b!==l?c(b).find(a):new e(g(a instanceof e?a.dom:a instanceof Array?a:a instanceof Element?[a]:d.call(f.querySelectorAll(a))),a)}var d=[].slice,f=document,i={append:"beforeEnd",prepend:"afterBegin",before:"beforeBegin",after:"afterEnd"},h,m,l;if(String.prototype.trim===l)String.prototype.trim=function(){return this.replace(/^\s+/,
 		"").replace(/\s+$/,"")};e.prototype=c.fn;c.extend=function(a,b){for(h in b)a[h]=b[h]};camelize=function(a){return a.replace(/-+(.)?/g,function(b,j){return j?j.toUpperCase():""})};c.fn={ready:function(a){document.addEventListener("DOMContentLoaded",a,false);return this},compact:function(){this.dom=g(this.dom);return this},get:function(a){return a===l?this.dom:this.dom[a]},remove:function(){return this.each(function(a){a.parentNode.removeChild(a)})},each:function(a){this.dom.forEach(a);return this},
