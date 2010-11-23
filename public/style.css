@@ -163,3 +163,5 @@ form button:active
 {
 	color:#A4CBE0;
 }
+
+html { -webkit-text-size-adjust:none; -ms-text-size-adjust:none; }
