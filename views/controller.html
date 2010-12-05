@@ -24,19 +24,18 @@
 		$(document).ready(function(){
 			$('#slide-previous, #slide-next').bind('click', function(e){
 				e.preventDefault();
-				$.get($(this).attr('href')+'/'+window.location.search.substr(1), function(){});
+				var session = window.location.href.split('/').pop();
+				$.get($(this).attr('href')+'/'+session, function(){});
 			});
 		});
 	</script>
 	<style>
-		#slide-controls
-		{
+		#slide-controls {
 			width:300px;
 			height:100px;
 			margin:0 auto;
 		}
-		.slide-button
-		{
+		.slide-button {
 			display:inline-block;
 			width:140px;
 			background-color:#ccc;
@@ -50,21 +49,25 @@
 			font-size:600%;
 			text-decoration:none;
 			color:#fff;
-			line-height:0.7;
+			line-height:0.85;
 			text-shadow: -1px -1px 1px rgba(0,0,0,0.5);
-			
+			font-family:Arial,sans-serif;
 		}
-		#slide-previous
-		{
+		#slide-previous {
 		    margin-right:4px;
 	    }
 		.slide-button:hover,
-		.slide-button:focus
-		{
+		.slide-button:focus {
 		    background-color:#98CCF1;
 		    background: -webkit-gradient(linear, left top, left bottom, from(#1277A1), to(#0C4258));
 		    background: -moz-linear-gradient(top, #1277A1, #0C4258);
 		    border-color:#1277A1;
+	    }
+	    #url {
+	    	display:block;
+	    	text-align:center;
+	    	margin-top:14px;
+	    	color:#004575;
 	    }
 	</style>
 </head>
@@ -72,8 +75,10 @@
 <body>
 
 <div id="slide-controls">
-	<a id="slide-previous" class="slide-button" href="/slyncr/prev">←</a><a id="slide-next" class="slide-button" href="/slyncr/next">→</a>
+	<a id="slide-previous" class="slide-button" href="prev">←</a><a id="slide-next" class="slide-button" href="next">→</a>
 </div>
+
+<a id="url" href="<?= url ?>"><?= url ?></a>
 
 </body>
 

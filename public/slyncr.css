@@ -1,0 +1,30 @@
+#slyncr-menu { 
+	position:fixed;
+	top:5px;
+	right:5px;
+	background-color:rgba(0,0,0,0.7);
+	border-radius:8px;
+	-moz-border-radius:8px;
+	-webkit-border-radius:8px;
+	padding:5px;
+	z-index:99;
+	font-size:10px;
+	color:#333;
+}
+#slyncr-menu-inner {
+	border-radius:5px;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	background-color:#fff;
+	padding:5px;
+}
+#slyncr-menu a {
+	display:block;
+	color:#004575;
+	border:0;
+}
+#slyncr-menu #slyncr-create-session {
+	margin-top:5px;
+	padding-top:5px;
+	border-top:solid 1px #333;
+}

@@ -6,145 +6,223 @@ if (!window.console)
 
 console.log('slyncr: script loaded');
 
-var config = {
-	server: 'cleverchris.com',
-	port: 8000
-};
+var Slyncr = {
 
-function getScript(url,success){
-	var script = document.createElement('script'),
-		head = document.getElementsByTagName('head')[0],
-		done = false;
+	config: {
+		server: 'localhost',
+		port:8000,
+		path:''
+	},
 	
-	script.src = url;
-	script.onload = script.onreadystatechange = function(){
-		if(!done && (!this.readyState || this.readyState=='loaded' || this.readyState=='complete'))
+	getPath: function(file)
+	{
+		return 'http://' + Slyncr.config.server + (Slyncr.config.port ? ':' + Slyncr.config.port : '') + Slyncr.config.path + '/' + file;
+	},
+	
+	getScript: function(url,success)
+	{
+		var script = document.createElement('script'),
+			head = document.getElementsByTagName('head')[0],
+			done = false;
+	
+		script.src = url;
+		script.onload = script.onreadystatechange = function(){
+			if(!done && (!this.readyState || this.readyState=='loaded' || this.readyState=='complete'))
+			{
+				done = true;
+				success();
+				script.onload = script.onreadystatechange = null;
+				head.removeChild(script);
+			}
+		};
+		head.appendChild(script);
+	},
+	
+	connect: function()
+	{
+		var socket = new io.Socket(Slyncr.config.server, {port: Slyncr.config.port});
+		socket.connect();
+		socket.on('message', function(data){
+			console.log('slyncr: received ' + data);
+			switch(data)
+			{
+				case 'next':
+					Slyncr.Controller.next();
+					return;
+				case 'previous':
+					Slyncr.Controller.previous();
+					return;
+			}
+			
+			// data could be count of connected clients or list of sessions
+			if (data.substr(0, 9) == 'sessions:')
+			{
+				var sessions = Slyncr.Y.JSON.parse(data.replace('sessions:',''));
+				Slyncr.buildMenu(sessions);
+			}
+			else
+				Slyncr.Message.set('Joined ' + Slyncr.joining + '; ' + parseInt(data, 10) + ' connected.');
+		});
+		socket.on('connect', function(){
+			Slyncr.Message.set('Connected!');
+			setTimeout(function(){
+				socket.send(window.location.href);
+			}, 200);	
+		});
+		socket.on('disconnect', function(){
+		   Slyncr.Message.set('Not connected!');
+		});
+		
+		Slyncr.socket = socket;
+	},
+	
+	triggerKeydown: function(key)
+	{
+		Slyncr.Y.Node.one('body').simulate('keydown', {keyCode: key});
+	},
+	
+	buildMenu: function(sessions)
+	{
+		var Node = Slyncr.Y.Node,
+			html = '<strong>Join:</strong><br>',
+			count = 0;
+			
+		for (var ses_id in sessions) 
 		{
-			done = true;
-			success();
-			script.onload = script.onreadystatechange = null;
-			head.removeChild(script);
+			html += '<a class="slyncr-session" href="#'+ses_id+'">'+sessions[ses_id]+'</a>';
+			count++;
 		}
-	};
-	head.appendChild(script);
-}
-
-function triggerKeydown(keyCode)
-{
-	var event = document.createEvent("Events");
-	event.initEvent('keydown', true, true);
-
-    //initialize
-    event.view = window;
-    event.altKey = false;
-    event.ctrlKey = false;
-    event.shiftKey = false;
-    event.metaKey = false;
-    event.keyCode = keyCode;
-    event.charCode = 0;
+		
+		if (count === 0)
+			html += 'No session started';
+				
+		html += '<a id="slyncr-create-session" href="#">Create Session</a>';
+		
+		Slyncr.Message.set(html);
+	},
 	
-	document.dispatchEvent(event);
-}
-
-var Message = {
-    el: null,
-    create: function(){
-        this.el = document.createElement('div');
-        this.el.style.position = 'fixed';
-        this.el.style.top = 0;
-        this.el.style.right = 0;
-        this.el.style.backgroundColor = '#022A61';
-        this.el.style.color = '#ffffff';
-        this.el.style.fontWeight = 'bold';
-        this.el.style.padding = '5px';
-        document.body.appendChild(this.el);
-    },
-    set: function(msg){
-        this.el.innerHTML = msg;
-        console.log('slyncr: ' + msg);
-    }
+	joinSession: function(session)
+	{
+		Slyncr.socket.send('join:'+session);
+	},
+	
+	startSession: function()
+	{
+		var session_name = prompt('Name your session', 'Default'),
+			params = '?url=' + encodeURIComponent(window.location.href) 
+				+ '&name=' + encodeURIComponent(session_name);
+		if (session_name)
+			window.open(Slyncr.getPath('generate') + params, 'slyncr', 'location=yes,resizable=yes,width=350,height=210');
+	},
+	
+	load: function()
+	{
+		Slyncr.getScript('http://yui.yahooapis.com/3.2.0/build/yui/yui-min.js', function(){
+			YUI().use('node', 'get', 'node-event-simulate', 'json-parse', function(Y){
+				Slyncr.Y = Y;
+				Slyncr.Message.render();
+				Y.Get.css(Slyncr.getPath('slyncr.css'));
+				Y.Get.script(
+					'http://' + Slyncr.config.server + (Slyncr.config.port ? ':' + Slyncr.config.port : '') + '/socket.io/socket.io.js',
+					{onSuccess: Slyncr.connect});
+			});
+		});
+	}
 };
 
-Message.create();
+Slyncr.Message = (function(){
+	/*var el = document.createElement('div');
+	el.style.position = 'fixed';
+	el.style.top = 0;
+	el.style.right = 0;
+	el.style.backgroundColor = '#022A61';
+	el.style.color = '#ffffff';
+	el.style.fontWeight = 'bold';
+	el.style.padding = '5px';
+	document.body.appendChild(el);*/
+	
+	var menu;
+	
+	return {
+		set: function(msg)
+		{
+			if (menu)
+			{
+				menu.get('children').item(0).setContent(msg);	
+			}
+		},
+		render: function()
+		{
+			var Node = Slyncr.Y.Node;
+			
+			menu = Node.create('<div id="slyncr-menu"><div id="slyncr-menu-inner"></div></div>');
+			
+			Node.one(document.body).append(menu);
+			
+			menu.delegate('click', function(e){
+				e.preventDefault();
+				Slyncr.startSession();
+			}, '#slyncr-create-session');
+		
+			menu.delegate('click', function(e){
+				e.preventDefault();
+				var link = Node.one(e.target);
+				Slyncr.joinSession(link.getAttribute('href').split('#')[1]);
+				Slyncr.joining = link.get('text');
+			}, '.slyncr-session');
+		}
+	}
+})();
 
-var Controller = (function(){
+Slyncr.Controller = (function(){
+	var obj;
 	// branch functionality for scribd
 	if (window.Scribd)
 	{
-	    if (!window.docManager)
-	    {
-            Message.set('Flash version of Scribd not supported!');
-            return;
-	    }
-	    
-		var obj = {
+		if (!window.docManager)
+		{
+	        //Slyncr.Message.set('Flash version of Scribd not supported!');
+	        return;
+		}
+		
+		obj = {
 			next: function(){ docManager.gotoNextPage() },
 			previous: function(){ docManager.gotoPreviousPage() }
 		};
-		return obj;
 	}
 	// 280 slides
 	else if (window.CPApp)
 	{
-		var obj = {
-			next: function(){
+		obj = {
+			next: function()
+			{
 				objj_msgSend(CPApp._mainWindow._contentView._subviews[0]._presentationView, "nextSlide");
 			},
-			previous: function(){
+			previous: function()
+			{
 				objj_msgSend(CPApp._mainWindow._contentView._subviews[0]._presentationView, "previousSlide");
 			}
 		};
-		return obj;
 	}
+	// simulate arrow keydown for all other sites
 	else
 	{
-	    Message.set('Triggering left and right keys');
-	    var obj = {
-	    	next: function(){
-	    		triggerKeydown(39);
-	    	},
-	    	previous: function(){
-	    		triggerKeydown(37);
-	    	}
-	    }
-	    return obj;
+		//Slyncr.Message.set('Triggering left and right keys');
+		obj = {
+			next: function()
+			{
+				Slyncr.triggerKeydown(39);
+			},
+			previous: function()
+			{
+				Slyncr.triggerKeydown(37);
+			}
+		};
 	}
-
+	return obj;
 })();
 
-if (!Controller)
-{
-    return;
-}
-
-getScript('http://' + config.server + (config.port ? ':' + config.port : '') + '/socket.io/socket.io.js', function(){
-	var socket = new io.Socket(config.server, {port: config.port});
-	socket.connect();
-	socket.on('message', function(data){
-		console.log('slyncr: received ' + data);
-		switch(data)
-		{
-			case 'next':
-				Controller.next();
-				break;
-			case 'previous':
-				Controller.previous();
-				break;
-			default:
-			    // default is a count of connected clients
-			    Message.set(parseInt(data, 10) + ' connected.');
-		}
-	});
-	socket.on('connect', function(){
-		Message.set('Connected!');
-		setTimeout(function(){
-			socket.send(window.location.href);
-		}, 200);	
-	});
-	socket.on('disconnect', function(){
-	   Message.set('Not connected!');
-	});
-});
+Slyncr.load();
 
 })();
 
