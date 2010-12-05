@@ -18,6 +18,7 @@ app.set('view options', {
     close: '?>'
 });
 app.set('home', 'http://cleverchris.com/slyncr');
+app.set('views', __dirname + '/views');
 app.listen(8000);
 
 

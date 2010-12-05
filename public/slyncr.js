@@ -9,9 +9,9 @@ console.log('slyncr: script loaded');
 var Slyncr = {
 
 	config: {
-		server: 'localhost',
-		port:8000,
-		path:''
+		server: 'cleverchris.com',
+		port:false,
+		path:'/slyncr'
 	},
 	
 	getPath: function(file)
