@@ -10,7 +10,7 @@ var Slyncr = {
 
 	config: {
 		server: 'cleverchris.com',
-		port:false,
+		port:8000,
 		path:'/slyncr'
 	},
 	
