@@ -9,14 +9,15 @@ console.log('slyncr: script loaded');
 var Slyncr = {
 
 	config: {
-		server: 'cleverchris.com',
-		port:8000,
-		path:'/slyncr'
+		server: 'localhost',
+		port: 8000,
+		socket_port: 8000,
+		path: ''
 	},
 	
 	getPath: function(file)
 	{
-		return 'http://' + Slyncr.config.server + /*(Slyncr.config.port ? ':' + Slyncr.config.port : '') + */ Slyncr.config.path + '/' + file;
+		return 'http://' + Slyncr.config.server + (Slyncr.config.port ? ':' + Slyncr.config.port : '') + Slyncr.config.path + '/' + file;
 	},
 	
 	getScript: function(url,success)
@@ -40,7 +41,7 @@ var Slyncr = {
 	
 	connect: function()
 	{
-		var socket = new io.Socket(Slyncr.config.server, {port: Slyncr.config.port});
+		var socket = new io.Socket(Slyncr.config.server, {port: Slyncr.config.socket_port});
 		socket.connect();
 		socket.on('message', function(data){
 			console.log('slyncr: received ' + data);
@@ -123,7 +124,7 @@ var Slyncr = {
 				Slyncr.Message.render();
 				Y.Get.css(Slyncr.getPath('slyncr.css'));
 				Y.Get.script(
-					'http://' + Slyncr.config.server + (Slyncr.config.port ? ':' + Slyncr.config.port : '') + '/socket.io/socket.io.js',
+					'http://' + Slyncr.config.server + (Slyncr.config.socket_port ? ':' + Slyncr.config.socket_port : '') + '/socket.io/socket.io.js',
 					{onSuccess: Slyncr.connect});
 			});
 		});

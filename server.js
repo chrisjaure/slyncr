@@ -104,11 +104,11 @@ app.get('/generate', function(req,res){
 	broadcastSessions(url);
 	setSessionTimeout(sessions[session]);
 	
-	res.redirect('/'+shortid);
+	res.redirect(shortid);
 });
 app.get('/:session', function(req,res){
 	var session = getSessionId(req.params.session);
-	res.render('controller.html', {locals: {url: sessions[session].url}});
+	res.render('controller.html', {locals: {url: sessions[session].url, name: sessions[session].name}});
 });
 
 app.get('/next/:session', function(req,res){
