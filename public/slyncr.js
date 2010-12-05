@@ -16,7 +16,7 @@ var Slyncr = {
 	
 	getPath: function(file)
 	{
-		return 'http://' + Slyncr.config.server + (Slyncr.config.port ? ':' + Slyncr.config.port : '') + Slyncr.config.path + '/' + file;
+		return 'http://' + Slyncr.config.server + /*(Slyncr.config.port ? ':' + Slyncr.config.port : '') + */ Slyncr.config.path + '/' + file;
 	},
 	
 	getScript: function(url,success)
