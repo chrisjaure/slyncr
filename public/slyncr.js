@@ -9,7 +9,7 @@ console.log('slyncr: script loaded');
 var Slyncr = {
 
 	config: {
-		server: 'localhost',
+		server: 'cleverchris.com',
 		port: false,
 		socket_port: 8000,
 		path: '/slyncr'
