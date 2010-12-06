@@ -10,9 +10,9 @@ var Slyncr = {
 
 	config: {
 		server: 'localhost',
-		port: 8000,
+		port: false,
 		socket_port: 8000,
-		path: ''
+		path: '/slyncr'
 	},
 	
 	getPath: function(file)

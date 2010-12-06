@@ -2,6 +2,7 @@ var express = require('express'),
 	sio = require('socket.io'),
 	url = require('url'),
 	crypto = require('crypto'),
+	sys = require('sys'),
 	app = express.createServer(),
 	socket,
 	sessions = {},
@@ -29,7 +30,6 @@ socket = sio.listen(app);
 socket.on('connection', function(client){
 	var url, session;
 	client.on('message', function(data){
-		console.log(data);
 		if (data.substr(0, 5) == 'join:')
 		{
 			session = data.replace('join:', '');
@@ -38,9 +38,8 @@ socket.on('connection', function(client){
 			   return;
 		
 			sessions[session].clients.push(client);
-			console.log('adding ' + session);
+			sys.log('adding client to ' + sessions[session].shortid);
 			broadcastCount(sessions[session].clients);
-			console.log(url);
 			removeClientFromUrls(client, url);
 		}
 		else //client sends url when it connects, we'll send back a list of sessions
@@ -62,7 +61,7 @@ socket.on('connection', function(client){
 				if (val == client)
 				{
 					sessions[session].clients.splice(i, 1);
-					console.log('removing ' + session);
+					sys.log('removing client from ' + sessions[session].shortid);
 				}
 			});
 			
@@ -86,7 +85,9 @@ app.get('/generate', function(req,res){
 	var shortid = getShortId(),
 		session = getSessionId(shortid),
 		url = req.query.url.split('#')[0],
-		name = req.query.name.replace(/<\w+(\s+("[^"]*"|'[^']*'|[^>])+)?>|<\/\w+>/gi, '');
+		name = req.query.name
+			.replace(/<\w+(\s+("[^"]*"|'[^']*'|[^>])+)?>|<\/\w+>/gi, '')
+			.substr(0,50);
 		
 	sessions[session] = {
 		slide: 1,
@@ -103,7 +104,7 @@ app.get('/generate', function(req,res){
 	url_sessions[url].push(session);
 	broadcastSessions(url);
 	setSessionTimeout(sessions[session]);
-	
+	sys.log('starting session ' + shortid + ' (' + url + ')');
 	res.redirect(shortid);
 });
 app.get('/:session', function(req,res){
@@ -121,7 +122,7 @@ app.get('/next/:session', function(req,res){
 		session.slide++;
 		setSessionTimeout(session);
 	}
-	console.log('next ' + req.params.session);
+	sys.log('next ' + req.params.session);
 	res.send('200 OK');
 });
 
@@ -135,7 +136,7 @@ app.get('/prev/:session', function(req,res){
 		session.slide--;
 		setSessionTimeout(session);
 	}
-	console.log('prev ' + req.params.session);
+	sys.log('prev ' + req.params.session);
 	res.send('200 OK');
 });
 
@@ -197,7 +198,6 @@ function getSessionList(url)
 			list[ses_id] = sessions[ses_id].name;
 		});
 	}
-	console.log(url_sessions);
 	return 'sessions:' + JSON.stringify(list);
 }
 
@@ -211,7 +211,7 @@ function setSessionTimeout(session)
 			client.connection.end();
 			removeClientFromUrls(client, client.url);
 		});
-		console.log('deleting ' + session.shortid);
+		sys.log('deleting session ' + session.shortid);
 		var url = session.url;
 		url_sessions[url].forEach(function(val, i){
 			if (val == session.id)
